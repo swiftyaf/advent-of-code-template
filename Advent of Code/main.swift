@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import RegexHelper
 
 func main() {
     let fileUrl = URL(fileURLWithPath: "./aoc-input")
@@ -13,17 +14,26 @@ func main() {
         .filter { !$0.isEmpty }
     
     // Sample algorithm
-    lines
-        .map {
-            $0.components(separatedBy: ", ")
-                .map { Int($0)! }
-                .sorted()
-                .map { String($0) }
+    var scoreboard = [String: Int]()
+    lines.forEach { line in
+        let (name, score) = parseLine(line)
+        scoreboard[name] = score
+    }
+    scoreboard
+        .sorted { lhs, rhs in
+            lhs.value > rhs.value
         }
-        .map {
-            $0.joined(separator: ", ")
+        .forEach { name, score in
+            print("\(name) \(score) pts")
         }
-        .forEach { print($0) }
+}
+
+func parseLine(_ line: String) -> (name: String, score: Int) {
+    let helper = RegexHelper(pattern: #"([\-\w]*)\s(\d+)"#)
+    let result = helper.parse(line)
+    let name = result[0]
+    let score = Int(result[1])!
+    return (name: name, score: score)
 }
 
 main()
